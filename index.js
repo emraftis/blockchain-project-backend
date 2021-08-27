@@ -55,11 +55,16 @@ app.get("/2021/:wallet", async (req, res) => {
 
 //to paginate, add '&page=<page#>&offset=<max#results>' to queryString (as per docs)
 async function loadTxns(walletID, startBlock, endBlock, action) {
+  console.log("start loading txns");
   let txnList = null;
   const txns = await axios.get(
     `https://api.etherscan.io/api?module=account&action=${action}&address=${walletID}&startblock=${startBlock}&endblock=${endBlock}&sort=asc&apikey=${process.env.ETHERSCAN_KEY}`
   );
   txnList = txns.data.result;
+  //filter txnList for results only where "from" === "walletID"
+  txnList = txnList.filter(function (x) {
+    return x.from === walletID.toLowerCase();
+  });
 
   //loop through txnList for each transaction.timeStamp
   //convert timeStamp date object
@@ -72,12 +77,13 @@ async function loadTxns(walletID, startBlock, endBlock, action) {
     const month = formattedDate.getMonth() + 1;
     const date = formattedDate.getDate();
     const apiFormatDate = year + "-" + month + "-" + date;
-    const spotPriceResponse = await axios.get(
+    const spotPriceETH = await axios.get(
       `https://api.coinbase.com/v2/prices/ETH-USD/spot?date=${apiFormatDate}`
     );
-    const spotPrice = spotPriceResponse.data;
+    const spotPrice = spotPriceETH.data;
     txnList[i] = { ...txnList[i], ...spotPrice, formattedDate };
   }
+
   return txnList;
 }
 
