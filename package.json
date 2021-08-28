@@ -11,7 +11,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node public/index.js",
+    "start": "node index.js",
     "dev": "nodemon index.js"
   },
   "author": "Evan Raftis",
