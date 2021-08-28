@@ -85,5 +85,16 @@ async function loadTxns(walletID, startBlock, endBlock, action) {
   return txnList;
 }
 
-//listen on 3000
-app.listen(3000, () => console.log("Listening on port 3000"));
+//production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(__dirname + "/public"));
+}
+
+//SPA
+app.get(/.*/, (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
+
+//listen on port
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log("Listening on port 3000"));
